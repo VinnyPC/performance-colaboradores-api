@@ -1,0 +1,6 @@
+from app.models.colaborador import Colaborador
+from app.models.avaliacao_comportamental import AvaliacaoComportamental
+from app.models.avaliacao_desafio import AvaliacaoDesafio
+from app.models.nota_final import NotaFinal
+from app.models.avaliacao_comportamental_item import AvaliacaoComportamentalItem
+from app.models.avaliacao_desafio_item import AvaliacaoDesafioItem
