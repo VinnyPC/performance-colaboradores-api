@@ -10,16 +10,14 @@ from app.models import AvaliacaoComportamental, AvaliacaoDesafio
 from app.utils.math_utils import calcular_media
 
 def salvar_avaliacao(data: dict):
-    """
-    Recebe o JSON do frontend com 'matricula', 'data_avaliacao', 'comportamental' e 'desafios'.
-    Cria avaliações, calcula médias e nota final, e persiste tudo no banco chamando os repositórios
-    """
     matricula = data.get("matricula")
     if not matricula:
         raise ValueError("O campo 'matricula' é obrigatório.")
 
     colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
-    data_avaliacao = datetime.strptime(data.get("data_avaliacao"), "%Y-%m-%d").date()
+    
+    data_avaliacao = data.get("data_avaliacao")
+
     comportamental_itens = data.get("comportamental", [])
     desafios_itens = data.get("desafios", [])
 
