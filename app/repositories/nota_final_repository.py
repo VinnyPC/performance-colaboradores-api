@@ -47,6 +47,12 @@ def listar_todos():
     """
     return NotaFinal.query.all()
 
+def listar_por_colaborador(colaborador_id: int):
+    """
+    Retorna todas as notas finais de um colaborador.
+    """
+    return NotaFinal.query.filter_by(colaborador_id=colaborador_id).all()
+
 def deletar(nota_final_id):
     NotaFinal.query.filter_by(id=nota_final_id).delete()
     db.session.flush()
