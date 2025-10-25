@@ -21,3 +21,28 @@ def salvar(colaborador_id, avaliacao_comportamental, avaliacao_desafio, data_cal
     )
     db.session.add(nota_final)
     return nota_final
+
+
+def atualizar_nota_final(colaborador_id, media_comportamental, media_desafio):
+    """
+    Atualiza a nota final de um colaborador com base nas novas médias.
+    """
+    nota_final = NotaFinal.query.filter_by(colaborador_id=colaborador_id).first()
+    if not nota_final:
+        raise ValueError(f"Nota final para o colaborador {colaborador_id} não encontrada")
+
+    nota_final.media_comportamental = media_comportamental
+    nota_final.media_desafio = media_desafio
+    nota_final.nota_final = round((media_comportamental + media_desafio) / 2, 1)
+
+    db.session.add(nota_final)
+    return nota_final
+
+def get_por_id(nota_final_id):
+    return NotaFinal.query.filter_by(id=nota_final_id).first()
+
+def deletar(nota_final_id):
+    NotaFinal.query.filter_by(id=nota_final_id).delete()
+    db.session.flush()
+    
+    
