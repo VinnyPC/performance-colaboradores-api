@@ -1,6 +1,6 @@
 from app.models.avaliacao_comportamental import AvaliacaoComportamental
 from app.models.avaliacao_comportamental_item import AvaliacaoComportamentalItem
-from app import db
+from app.extensions import db
 
 
 def listar_por_colaborador(colaborador_id):

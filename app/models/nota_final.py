@@ -1,4 +1,4 @@
-from app import db
+from app.extensions import db
 
 class NotaFinal(db.Model):
     __tablename__ = 'tb_nota_final'

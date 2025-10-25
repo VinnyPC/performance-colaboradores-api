@@ -1,4 +1,4 @@
-from app import db
+from app.extensions import db
 
 class AvaliacaoComportamentalItem(db.Model):
     __tablename__ = 'avaliacao_comportamental_item'

@@ -6,3 +6,16 @@ def get_id_por_matricula(matricula: str) -> int:
     if not colaborador:
         raise ValueError(f"Colaborador com matrícula {matricula} não encontrado.")
     return colaborador.id
+
+def listar_todos():
+    colaboradores = Colaborador.query.all()
+    return [
+        {
+            "id": c.id,
+            "nome": c.nome,
+            "matricula": c.matricula,
+            "cargo": c.cargo,
+            "cargo": c.cargo
+        }
+        for c in colaboradores
+    ]

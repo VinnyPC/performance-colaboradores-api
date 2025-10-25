@@ -1,4 +1,4 @@
-from app import db
+from app.extensions import db
 from app.models import AvaliacaoComportamental, AvaliacaoComportamentalItem
 
 def salvar_avaliacao_comportamental(avaliacao: AvaliacaoComportamental, itens: list):

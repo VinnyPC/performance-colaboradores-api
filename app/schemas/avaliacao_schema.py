@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields, validates, ValidationError, post_load, validate
 
+# Importante: é preciso usar **kwargs para marshmallow>=3.13
 class AvaliacaoComportamentalItemSchema(Schema):
     numero_questao = fields.Integer(required=True)
     descricao = fields.String(required=True)

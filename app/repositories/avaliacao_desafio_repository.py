@@ -1,4 +1,4 @@
-from app import db
+from app.extensions import db
 from app.models import AvaliacaoDesafio, AvaliacaoDesafioItem
 
 def salvar_avaliacao_desafio(avaliacao: AvaliacaoDesafio, itens: list):
@@ -33,7 +33,7 @@ def get_por_colaborador_e_data(colaborador_id, data_avaliacao):
         data_avaliacao=data_avaliacao
     ).first()
     
-from app import db
+from app.extensions import db
 from app.models import AvaliacaoDesafio, AvaliacaoDesafioItem
 
 def deletar(avaliacao_desafio_id):

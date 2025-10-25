@@ -1,4 +1,4 @@
-from app import db
+from app.extensions import db
 from app.models import NotaFinal
 from app.utils.math_utils import calcular_media
 
@@ -40,6 +40,12 @@ def atualizar_nota_final(colaborador_id, media_comportamental, media_desafio):
 
 def get_por_id(nota_final_id):
     return NotaFinal.query.filter_by(id=nota_final_id).first()
+
+def listar_todos():
+    """
+    Retorna todos os registros da tabela NotaFinal.
+    """
+    return NotaFinal.query.all()
 
 def deletar(nota_final_id):
     NotaFinal.query.filter_by(id=nota_final_id).delete()

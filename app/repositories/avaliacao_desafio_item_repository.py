@@ -1,6 +1,6 @@
 from app.models.avaliacao_desafio import AvaliacaoDesafio
 from app.models.avaliacao_desafio_item import AvaliacaoDesafioItem
-from app import db
+from app.extensions import db
 
 
 def listar_por_colaborador(colaborador_id):

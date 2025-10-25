@@ -4,6 +4,7 @@ from app.repositories import avaliacao_comportamental_item_repository, avaliacao
 from app.schemas import avaliacao_schema
 from app.services import avaliacao_service
 from app.services.avaliacao_service import salvar_avaliacao
+from app.logger import logger
 
 
 
@@ -14,13 +15,20 @@ avaliacao_schema = avaliacao_schema.AvaliacaoSchema()
 def listar_comportamentais():
     matricula = request.args.get("matricula")
     if not matricula:
-
+      
+        logger.error("Matrícula não fornecida na requisição para listar avaliações comportamentais.")
         return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
+      
     try:
+      
+        logger.info(f"Obtendo ID do colaborador para a matrícula {matricula}...")
         colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
+        logger.info(f"ID encontrado. Listando avaliações comportamentais para a matrícula {matricula}...")
         itens = avaliacao_comportamental_item_repository.listar_por_colaborador(colaborador_id)
         return jsonify(itens), 200
+      
     except ValueError as err:
+        logger.error(f"Erro ao listar avaliações comportamentais: {err}")
         return jsonify({"error": str(err)}), 404
       
 @avaliacoes_bp.route("/desafio", methods=["GET"])

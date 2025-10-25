@@ -8,7 +8,7 @@ from app.repositories import (
     nota_final_repository
 )
 from sqlalchemy.exc import IntegrityError
-from app import db
+from app.extensions import db
 from app.models import AvaliacaoComportamental, AvaliacaoDesafio
 from app.utils.math_utils import calcular_media
 from app.logger import logger
@@ -111,10 +111,13 @@ def atualizar_avaliacao(avaliacao_id, data):
 def deletar_avaliacao_por_nota_final(nota_final_id):
     nota_final = nota_final_repository.get_por_id(nota_final_id)
     if not nota_final:
+        logger.error(f"Nota final com ID {nota_final_id} não encontrada para deleção.")
         raise ValueError("Nota final não encontrada")
 
+    logger.info(f"Iniciando deleção da avaliação associada à nota final ID {nota_final_id}...")
     nota_final_repository.deletar(nota_final_id)
 
+    logger.info("Deletando avaliações comportamental e de desafios associadas...")
     if nota_final.avaliacao_comportamental_id:
         avaliacao_comportamental_item_repository.deletar(nota_final.avaliacao_comportamental_id)
         avaliacao_comportamental_repository.deletar(nota_final.avaliacao_comportamental_id)
@@ -124,6 +127,7 @@ def deletar_avaliacao_por_nota_final(nota_final_id):
         avaliacao_desafio_repository.deletar(nota_final.avaliacao_desafio_id)
 
     db.session.commit()
+    logger.success(f"Avaliação associada à nota final ID {nota_final_id} removida com sucesso.")
     return "Avaliação removida com sucesso"
 
 
