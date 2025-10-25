@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, validates, ValidationError, post_load
+from marshmallow import Schema, fields, validates, ValidationError, post_load, validate
 
 class AvaliacaoComportamentalItemSchema(Schema):
     numero_questao = fields.Integer(required=True)
@@ -45,3 +45,15 @@ class AvaliacaoSchema(Schema):
     @post_load
     def padronizar_nota(self, data, **kwargs):
         return data
+    
+class AvaliacaoItemSchema(Schema):
+    numero_questao = fields.Integer(required=False)
+    numero_desafio = fields.Integer(required=False)
+    descricao = fields.String(required=True)
+    nota = fields.Integer(required=True, validate=validate.Range(min=1, max=5))
+
+class AvaliacaoUpdateSchema(Schema):
+    matricula = fields.String(required=True)
+    data_avaliacao = fields.Date(required=True)
+    comportamental = fields.List(fields.Nested(AvaliacaoItemSchema), required=False)
+    desafios = fields.List(fields.Nested(AvaliacaoItemSchema), required=False)

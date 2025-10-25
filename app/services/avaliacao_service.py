@@ -11,13 +11,16 @@ from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models import AvaliacaoComportamental, AvaliacaoDesafio
 from app.utils.math_utils import calcular_media
+from app.logger import logger
 
 def salvar_avaliacao(data: dict):
     try:
         matricula = data.get("matricula")
         if not matricula:
+            logger.error("Erro ao tentar salvar a avaliação: matrícula não fornecida.")
             raise ValueError("O campo 'matricula' é obrigatório.")
 
+        logger.info(f"Iniciando salvamento de avaliação para a matrícula {matricula}...")
         colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
         
         data_avaliacao = data.get("data_avaliacao")
@@ -25,6 +28,7 @@ def salvar_avaliacao(data: dict):
         comportamental_itens = data.get("comportamental", [])
         desafios_itens = data.get("desafios", [])
 
+        logger.info(f"Calculando as médias para a matrícula {matricula}...")
         media_comportamental = calcular_media([item['nota'] for item in comportamental_itens])
         media_desafio = calcular_media([item['nota'] for item in desafios_itens])
 
@@ -39,12 +43,16 @@ def salvar_avaliacao(data: dict):
             media_desafio=media_desafio
         )
 
+        logger.info(f"Salvando avaliações comportamentais e desafios no banco para a matrícula {matricula}...")
         avaliacao_comportamental_repository.salvar_avaliacao_comportamental(avaliacao_comportamental, comportamental_itens)
         avaliacao_desafio_repository.salvar_avaliacao_desafio(avaliacao_desafio, desafios_itens)
+        
+        logger.info(f"Calculando e salvando a nota final para a matrícula {matricula}...")
         nota_final = nota_final_repository.salvar(colaborador_id, avaliacao_comportamental, avaliacao_desafio, data_avaliacao)
 
         db.session.commit()
 
+        logger.info(f"Avaliação salva com sucesso para a matrícula {matricula}.")
         return {
             "media_comportamental": media_comportamental,
             "media_desafio": media_desafio,
@@ -52,28 +60,41 @@ def salvar_avaliacao(data: dict):
         }
     except IntegrityError as e:
         db.session.rollback()
+        logger.error(f"Erro de integridade ao salvar avaliação para a matrícula {matricula}: {str(e.orig)}")
         raise ValueError(f"Erro ao salvar avaliação: {str(e.orig)}")
     
 def atualizar_avaliacao(avaliacao_id, data):
+    logger.info(f"Iniciando atualização da avaliação ID {avaliacao_id} com dados: {data}")
+
     avaliacao = avaliacao_comportamental_repository.get_por_id(avaliacao_id)
     if not avaliacao:
+        logger.error(f"Avaliação comportamental com ID {avaliacao_id} não encontrada.")
         raise ValueError("Avaliação comportamental não encontrada")
-    avaliacao_comportamental_item_repository.atualizar_itens(avaliacao, data.get("comportamental"))
+
+    if "comportamental" in data:
+        logger.info("Atualizando itens comportamentais...")
+        avaliacao_comportamental_item_repository.atualizar_itens(avaliacao, data["comportamental"])
 
     avaliacao_desafio = avaliacao_desafio_repository.get_por_colaborador_e_data(
         colaborador_id=avaliacao.colaborador_id,
         data_avaliacao=data.get("data_avaliacao")
     )
-    if not avaliacao_desafio:
-        raise ValueError("Avaliação de desafios não encontrada")
 
-    avaliacao_desafio_item_repository.atualizar_itens(avaliacao_desafio, data.get("desafios"))
+    if "desafios" in data:
+        if not avaliacao_desafio:
+            logger.error("Avaliação de desafios não encontrada.")
+            raise ValueError("Avaliação de desafios não encontrada")
 
-    media_comportamental = calcular_media([item.nota for item in avaliacao.itens])
-    media_desafio = calcular_media([item.nota for item in avaliacao_desafio.itens])
+        logger.info("Atualizando itens de desafios...")
+        avaliacao_desafio_item_repository.atualizar_itens(avaliacao_desafio, data["desafios"])
+
+    media_comportamental = calcular_media([item.nota for item in avaliacao.itens]) if "comportamental" in data else avaliacao.media_comportamental
+    media_desafio = calcular_media([item.nota for item in avaliacao_desafio.itens]) if "desafios" in data else avaliacao_desafio.media_desafio
 
     avaliacao.media_comportamental = media_comportamental
     avaliacao_desafio.media_desafio = media_desafio
+
+    logger.info(f"Atualizando nota final: comportamento={media_comportamental}, desafios={media_desafio}")
     nota_final_repository.atualizar_nota_final(
         colaborador_id=avaliacao.colaborador_id,
         media_comportamental=media_comportamental,
@@ -81,12 +102,12 @@ def atualizar_avaliacao(avaliacao_id, data):
     )
 
     db.session.commit()
+    logger.success(f"Avaliação ID {avaliacao_id} atualizada com sucesso.")
 
     return {
         "media_comportamental": media_comportamental,
         "media_desafio": media_desafio
-    }
-    
+    }     
 def deletar_avaliacao_por_nota_final(nota_final_id):
     nota_final = nota_final_repository.get_por_id(nota_final_id)
     if not nota_final:
