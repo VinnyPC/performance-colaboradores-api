@@ -8,7 +8,8 @@ A função dessa API é receber notas de avaliações comportamentais e desafios
 ---
   
 ## Ideia de arquitetura do banco de dados:
-<img width="736" height="873" alt="db_performance_colaboradores" src="https://github.com/user-attachments/assets/3415e9f8-be36-45e8-8170-c9d9e7c24f75" />
+<img width="788" height="743" alt="db_performance_colaboradores_v2" src="https://github.com/user-attachments/assets/c6a68ad5-4179-43f8-b114-569edcee60d6" />
+
 
 ### Como funciona o banco de dados:
 - Os colaboradores são armazenados na tabela tb_colaborador.
