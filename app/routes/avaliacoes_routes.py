@@ -1,16 +1,25 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
-from app.repositories import avaliacao_comportamental_item_repository, avaliacao_comportamental_repository, avaliacao_desafio_item_repository, colaborador_repository
-from app.schemas import avaliacao_schema
+from app.repositories import (
+    avaliacao_comportamental_item_repository,
+    avaliacao_comportamental_repository,
+    avaliacao_desafio_item_repository,
+    avaliacao_desafio_repository,
+    colaborador_repository
+)
+from app.schemas import avaliacao_schema, AvaliacaoComportamentalSchema, AvaliacaoDesafioSchema
 from app.services import avaliacao_service
 from app.services.avaliacao_service import salvar_avaliacao
 from app.logger import logger
-from datetime import datetime
 
 
 
 avaliacoes_bp = Blueprint("avaliacoes", __name__, url_prefix="/avaliacoes")
 avaliacao_schema = avaliacao_schema.AvaliacaoSchema()
+media_comportamental_schema = AvaliacaoComportamentalSchema()
+media_comportamental_schema_many = AvaliacaoComportamentalSchema(many=True)
+media_desafio_schema = AvaliacaoDesafioSchema()
+media_desafio_schema_many = AvaliacaoDesafioSchema(many=True)
 
 @avaliacoes_bp.route("/comportamental", methods=["GET"])
 def listar_comportamentais():
@@ -48,6 +57,59 @@ def listar_desafios():
         data_fim=data_fim
     )
     return jsonify(itens), 200
+  
+@avaliacoes_bp.route("/mediaFinalComportamental", methods=["GET"])
+def listar_media_final_comportamental_por_matricula():
+    """
+    Retorna as médias finais comportamentais de um colaborador filtrando pela matrícula.
+    """
+    matricula = request.args.get("matricula")
+    if not matricula:
+        return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
+
+    try:
+        colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
+        avaliacoes = avaliacao_comportamental_repository.listar_por_colaborador(colaborador_id)
+        return jsonify(media_comportamental_schema_many.dump(avaliacoes)), 200
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 404
+
+
+@avaliacoes_bp.route("/mediaFinalComportamental/<int:avaliacao_id>", methods=["GET"])
+def get_media_final_comportamental_por_id(avaliacao_id):
+    """
+    Retorna a média final comportamental de uma avaliação pelo ID.
+    """
+    avaliacao = avaliacao_comportamental_repository.get_por_id(avaliacao_id)
+    if not avaliacao:
+        return jsonify({"error": "Avaliação comportamental não encontrada"}), 404
+    return jsonify(media_comportamental_schema.dump(avaliacao)), 200
+
+
+@avaliacoes_bp.route("/mediaFinalDesafio", methods=["GET"])
+def listar_media_final_desafio_por_matricula():
+    """
+    Retorna as médias finais de desafios de um colaborador filtrando pela matrícula.
+    """
+    matricula = request.args.get("matricula")
+    if not matricula:
+        return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
+
+    try:
+        colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
+        avaliacoes = avaliacao_desafio_repository.listar_por_colaborador(colaborador_id)
+        return jsonify(media_desafio_schema_many.dump(avaliacoes)), 200
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 404
+
+
+@avaliacoes_bp.route("/mediaFinalDesafio/<int:avaliacao_id>", methods=["GET"])
+def get_media_final_desafio_por_id(avaliacao_id):
+    avaliacao = avaliacao_desafio_repository.get_por_id(avaliacao_id)
+    if not avaliacao:
+        return jsonify({"error": "Avaliação de desafio não encontrada"}), 404
+    return jsonify(media_desafio_schema.dump(avaliacao)), 200
+
 
 
 @avaliacoes_bp.route("", methods=["POST"])

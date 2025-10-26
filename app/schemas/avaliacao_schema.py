@@ -74,3 +74,17 @@ class AvaliacaoDesafioItemOutputSchema(Schema):
     descricao = fields.Str()
     data_avaliacao = fields.Date()
     nota = fields.Float()
+    
+class AvaliacaoComportamentalSchema(Schema):
+    id = fields.Int()
+    colaborador_id = fields.Int()
+    data_avaliacao = fields.Date()
+    media_comportamental = fields.Float()
+    itens = fields.List(fields.Nested(AvaliacaoComportamentalItemOutputSchema))  
+
+class AvaliacaoDesafioSchema(Schema):
+    id = fields.Int()
+    colaborador_id = fields.Int()
+    data_avaliacao = fields.Date()
+    media_desafio = fields.Float()
+    itens = fields.List(fields.Nested(AvaliacaoDesafioItemOutputSchema)) 

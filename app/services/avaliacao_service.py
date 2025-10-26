@@ -14,6 +14,10 @@ from app.utils.math_utils import calcular_media
 from app.logger import logger
 
 def salvar_avaliacao(data: dict):
+    """
+    Salva uma nova avaliação comportamental e de desafios, juntamente com seus itens.
+    Calcula as médias e a nota final, e persiste tudo no banco de dados.
+    """
     try:
         matricula = data.get("matricula")
         if not matricula:
@@ -76,10 +80,14 @@ def salvar_avaliacao(data: dict):
 
     except IntegrityError as e:
         db.session.rollback()
-        logger.error(f"Erro de integridade ao salvar avaliação para a matrícula {matricula}: {str(e.orig)}")
+        logger.exception(f"Erro de integridade ao salvar avaliação para a matrícula {matricula}: {str(e.orig)}")
         raise ValueError(f"Erro ao salvar avaliação: {str(e.orig)}")
       
 def atualizar_avaliacao(avaliacao_id, data):
+    """
+    Atualiza uma avaliação comportamental e seus itens, bem como a avaliação de desafios e seus itens.
+    Recalcula as médias e atualiza a nota final associada.
+    """
     logger.info(f"Iniciando atualização da avaliação ID {avaliacao_id} com dados: {data}")
 
     avaliacao = avaliacao_comportamental_repository.get_por_id(avaliacao_id)
@@ -125,25 +133,38 @@ def atualizar_avaliacao(avaliacao_id, data):
         "media_desafio": media_desafio
     }     
 def deletar_avaliacao_por_nota_final(nota_final_id):
-    nota_final = nota_final_repository.get_por_id(nota_final_id)
-    if not nota_final:
-        logger.error(f"Nota final com ID {nota_final_id} não encontrada para deleção.")
-        raise ValueError("Nota final não encontrada")
+    """
+    Deleta a avaliação comportamental e de desafios associadas a uma nota final.
+    """
+    try:
+        nota_final = nota_final_repository.get_por_id(nota_final_id)
+        if not nota_final:
+            logger.error(f"Nota final com ID {nota_final_id} não encontrada para deleção.")
+            raise ValueError("Nota final não encontrada")
 
-    logger.info(f"Iniciando deleção da avaliação associada à nota final ID {nota_final_id}...")
-    nota_final_repository.deletar(nota_final_id)
+        logger.info(f"Iniciando deleção da avaliação associada à nota final ID {nota_final_id}...")
+        nota_final_repository.deletar(nota_final_id)
 
-    logger.info("Deletando avaliações comportamental e de desafios associadas...")
-    if nota_final.avaliacao_comportamental_id:
-        avaliacao_comportamental_item_repository.deletar(nota_final.avaliacao_comportamental_id)
-        avaliacao_comportamental_repository.deletar(nota_final.avaliacao_comportamental_id)
+        logger.info("Deletando avaliações comportamental e de desafios associadas...")
+        if nota_final.avaliacao_comportamental_id:
+            avaliacao_comportamental_item_repository.deletar(nota_final.avaliacao_comportamental_id)
+            avaliacao_comportamental_repository.deletar(nota_final.avaliacao_comportamental_id)
 
-    if nota_final.avaliacao_desafio_id:
-        avaliacao_desafio_item_repository.deletar(nota_final.avaliacao_desafio_id)
-        avaliacao_desafio_repository.deletar(nota_final.avaliacao_desafio_id)
+        if nota_final.avaliacao_desafio_id:
+            avaliacao_desafio_item_repository.deletar(nota_final.avaliacao_desafio_id)
+            avaliacao_desafio_repository.deletar(nota_final.avaliacao_desafio_id)
 
-    db.session.commit()
-    logger.success(f"Avaliação associada à nota final ID {nota_final_id} removida com sucesso.")
-    return "Avaliação removida com sucesso"
+        db.session.commit()
+        logger.success(f"Avaliação associada à nota final ID {nota_final_id} removida com sucesso.")
+        return "Avaliação removida com sucesso"
+    except ValueError as e:
+        db.session.rollback()
+        logger.exception(f"Erro ao deletar avaliação associada à nota final ID {nota_final_id}: {str(e)}")
+        raise ValueError(f"Erro ao deletar avaliação: {str(e)}")
+    
+    except Exception as e:
+        db.session.rollback()
+        logger.exception(f"Erro interno ao deletar avaliação associada à nota final ID {nota_final_id}: {str(e)}")
+        raise Exception(f"Erro interno ao deletar avaliação: {str(e)}")
 
 

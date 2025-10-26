@@ -40,3 +40,12 @@ def deletar(avaliacao_desafio_id):
     AvaliacaoDesafio.query.filter_by(id=avaliacao_desafio_id).delete()
     db.session.flush()
 
+def listar_por_colaborador(colaborador_id, data_inicio=None, data_fim=None):
+    query = db.session.query(AvaliacaoDesafio).filter_by(colaborador_id=colaborador_id)
+    
+    if data_inicio:
+        query = query.filter(AvaliacaoDesafio.data_avaliacao >= data_inicio)
+    if data_fim:
+        query = query.filter(AvaliacaoDesafio.data_avaliacao <= data_fim)
+    
+    return query.all()

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.services import nota_final_service
+from app.logger import logger
 
 nota_final_bp = Blueprint("nota_final", __name__, url_prefix="/notas_finais")
 
@@ -18,6 +19,7 @@ def listar_notas_colaborador():
     """
     matricula = request.args.get("matricula")
     if not matricula:
+        logger.error("Erro ao listar notas finais: matrícula não fornecida")
         return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
     try:
         resultado = nota_final_service.listar_notas_por_matricula(matricula)
