@@ -17,21 +17,15 @@ def salvar_avaliacao_comportamental(avaliacao, itens: list):
 
     db.session.add_all(itens_obj)
 
-def listar_por_colaborador(colaborador_id):
-    results = (
-        AvaliacaoComportamental.query
-        .filter_by(colaborador_id=colaborador_id)
-        .order_by(AvaliacaoComportamental.data_avaliacao.desc())
-        .all()
-    )
-    output = []
-    for a in results:
-        output.append({
-            "id": a.id,
-            "data_avaliacao": a.data_avaliacao.isoformat(),
-            "media_comportamental": a.media_comportamental
-        })
-    return output
+def listar_por_colaborador(colaborador_id, data_inicio=None, data_fim=None):
+    query = db.session.query(AvaliacaoComportamental).filter_by(colaborador_id=colaborador_id)
+    
+    if data_inicio:
+        query = query.filter(AvaliacaoComportamental.data_avaliacao >= data_inicio)
+    if data_fim:
+        query = query.filter(AvaliacaoComportamental.data_avaliacao <= data_fim)
+    
+    return query.all()
 
 def get_por_id(avaliacao_id: int):
     """

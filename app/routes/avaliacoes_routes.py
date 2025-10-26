@@ -61,15 +61,20 @@ def listar_desafios():
 @avaliacoes_bp.route("/mediaFinalComportamental", methods=["GET"])
 def listar_media_final_comportamental_por_matricula():
     """
-    Retorna as médias finais comportamentais de um colaborador filtrando pela matrícula.
+    Retorna as médias finais comportamentais de um colaborador filtrando pela matrícula e período.
     """
     matricula = request.args.get("matricula")
+    data_inicio = request.args.get("data_inicio")
+    data_fim = request.args.get("data_fim")
+
     if not matricula:
         return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
 
     try:
         colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
-        avaliacoes = avaliacao_comportamental_repository.listar_por_colaborador(colaborador_id)
+        avaliacoes = avaliacao_comportamental_repository.listar_por_colaborador(
+            colaborador_id, data_inicio=data_inicio, data_fim=data_fim
+        )
         return jsonify(media_comportamental_schema_many.dump(avaliacoes)), 200
     except ValueError as err:
         return jsonify({"error": str(err)}), 404
@@ -89,15 +94,20 @@ def get_media_final_comportamental_por_id(avaliacao_id):
 @avaliacoes_bp.route("/mediaFinalDesafio", methods=["GET"])
 def listar_media_final_desafio_por_matricula():
     """
-    Retorna as médias finais de desafios de um colaborador filtrando pela matrícula.
+    Retorna as médias finais de desafios de um colaborador filtrando pela matrícula e período.
     """
     matricula = request.args.get("matricula")
+    data_inicio = request.args.get("data_inicio")
+    data_fim = request.args.get("data_fim")
+
     if not matricula:
         return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
 
     try:
         colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
-        avaliacoes = avaliacao_desafio_repository.listar_por_colaborador(colaborador_id)
+        avaliacoes = avaliacao_desafio_repository.listar_por_colaborador(
+            colaborador_id, data_inicio=data_inicio, data_fim=data_fim
+        )
         return jsonify(media_desafio_schema_many.dump(avaliacoes)), 200
     except ValueError as err:
         return jsonify({"error": str(err)}), 404
