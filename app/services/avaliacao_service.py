@@ -24,6 +24,9 @@ def salvar_avaliacao(data: dict):
         colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
         
         data_avaliacao = data.get("data_avaliacao")
+        if not data_avaliacao:
+            logger.error("Erro ao salvar avaliação: data_avaliacao não fornecida.")
+            raise ValueError("O campo 'data_avaliacao' é obrigatório.")
 
         comportamental_itens = data.get("comportamental", [])
         desafios_itens = data.get("desafios", [])
@@ -44,11 +47,23 @@ def salvar_avaliacao(data: dict):
         )
 
         logger.info(f"Salvando avaliações comportamentais e desafios no banco para a matrícula {matricula}...")
-        avaliacao_comportamental_repository.salvar_avaliacao_comportamental(avaliacao_comportamental, comportamental_itens)
-        avaliacao_desafio_repository.salvar_avaliacao_desafio(avaliacao_desafio, desafios_itens)
+
+        avaliacao_comportamental_repository.salvar_avaliacao_comportamental(
+            avaliacao_comportamental,
+            [{**item, "data_avaliacao": data_avaliacao} for item in comportamental_itens]
+        )
+        avaliacao_desafio_repository.salvar_avaliacao_desafio(
+            avaliacao_desafio,
+            [{**item, "data_avaliacao": data_avaliacao} for item in desafios_itens]
+        )
         
         logger.info(f"Calculando e salvando a nota final para a matrícula {matricula}...")
-        nota_final = nota_final_repository.salvar(colaborador_id, avaliacao_comportamental, avaliacao_desafio, data_avaliacao)
+        nota_final = nota_final_repository.salvar(
+            colaborador_id,
+            avaliacao_comportamental,
+            avaliacao_desafio,
+            data_avaliacao
+        )
 
         db.session.commit()
 
@@ -58,11 +73,12 @@ def salvar_avaliacao(data: dict):
             "media_desafio": media_desafio,
             "nota_final": nota_final.nota_final
         }
+
     except IntegrityError as e:
         db.session.rollback()
         logger.error(f"Erro de integridade ao salvar avaliação para a matrícula {matricula}: {str(e.orig)}")
         raise ValueError(f"Erro ao salvar avaliação: {str(e.orig)}")
-    
+      
 def atualizar_avaliacao(avaliacao_id, data):
     logger.info(f"Iniciando atualização da avaliação ID {avaliacao_id} com dados: {data}")
 

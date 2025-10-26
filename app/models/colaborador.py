@@ -9,6 +9,11 @@ class Colaborador(db.Model):
     data_admissao = db.Column(db.Date, nullable=False)
     cargo = db.Column(db.String(50))
 
-    avaliacoes_comportamentais = db.relationship('AvaliacaoComportamental', backref='colaborador', lazy=True)
-    avaliacoes_desafios = db.relationship('AvaliacaoDesafio', backref='colaborador', lazy=True)
-    notas_finais = db.relationship('NotaFinal', backref='colaborador', lazy=True)
+    avaliacoes_comportamentais = db.relationship(
+        'AvaliacaoComportamental', backref='colaborador', lazy=True, cascade="all, delete-orphan"
+    )
+    avaliacoes_desafios = db.relationship(
+        'AvaliacaoDesafio', backref='colaborador', lazy=True, cascade="all, delete-orphan"
+    )
+    notas_finais = db.relationship('NotaFinal', backref='colaborador', lazy=True, cascade="all, delete-orphan")
+

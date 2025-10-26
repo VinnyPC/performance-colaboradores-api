@@ -1,22 +1,21 @@
 from app.extensions import db
 from app.models import AvaliacaoComportamental, AvaliacaoComportamentalItem
 
-def salvar_avaliacao_comportamental(avaliacao: AvaliacaoComportamental, itens: list):
-    """
-    Persiste a avaliação comportamental e seus itens no banco.
-    """
+def salvar_avaliacao_comportamental(avaliacao, itens: list):
     db.session.add(avaliacao)
-    db.session.flush()
+    db.session.flush() 
 
+    itens_obj = []
     for item in itens:
-        db.session.add(AvaliacaoComportamentalItem(
+        itens_obj.append(AvaliacaoComportamentalItem(
             avaliacao_comportamental_id=avaliacao.id,
-            numero_questao=item['numero_questao'],
-            descricao=item['descricao'],
-            nota=item['nota']
+            numero_questao=item["numero_questao"],
+            descricao=item["descricao"],
+            nota=item["nota"],
+            data_avaliacao=item["data_avaliacao"]  
         ))
 
-    return avaliacao
+    db.session.add_all(itens_obj)
 
 def listar_por_colaborador(colaborador_id):
     results = (

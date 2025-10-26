@@ -58,3 +58,19 @@ class AvaliacaoUpdateSchema(Schema):
     data_avaliacao = fields.Date(required=True)
     comportamental = fields.List(fields.Nested(AvaliacaoItemSchema), required=False)
     desafios = fields.List(fields.Nested(AvaliacaoItemSchema), required=False)
+    
+class AvaliacaoComportamentalItemOutputSchema(Schema):
+    id = fields.Int()
+    avaliacao_comportamental_id = fields.Int()
+    numero_questao = fields.Int()
+    descricao = fields.Str()
+    data_avaliacao = fields.Date()
+    nota = fields.Float()
+
+class AvaliacaoDesafioItemOutputSchema(Schema):
+    id = fields.Int()
+    avaliacao_desafio_id = fields.Int() 
+    numero_desafio = fields.Int()
+    descricao = fields.Str()
+    data_avaliacao = fields.Date()
+    nota = fields.Float()

@@ -1,22 +1,21 @@
 from app.extensions import db
 from app.models import AvaliacaoDesafio, AvaliacaoDesafioItem
 
-def salvar_avaliacao_desafio(avaliacao: AvaliacaoDesafio, itens: list):
-    """
-    Persiste a avaliação de desafios e seus itens no banco.
-    """
+def salvar_avaliacao_desafio(avaliacao, itens: list):
     db.session.add(avaliacao)
-    db.session.flush() 
+    db.session.flush()
 
+    itens_obj = []
     for item in itens:
-        db.session.add(AvaliacaoDesafioItem(
+        itens_obj.append(AvaliacaoDesafioItem(
             avaliacao_desafio_id=avaliacao.id,
-            numero_desafio=item['numero_desafio'],
-            descricao=item.get('descricao'),
-            nota=item['nota']
+            numero_desafio=item["numero_desafio"],
+            descricao=item.get("descricao"),
+            nota=item["nota"],
+            data_avaliacao=item["data_avaliacao"]
         ))
 
-    return avaliacao
+    db.session.add_all(itens_obj)
 
 def get_por_id(avaliacao_id: int):
     """

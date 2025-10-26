@@ -5,6 +5,7 @@ from app.schemas import avaliacao_schema
 from app.services import avaliacao_service
 from app.services.avaliacao_service import salvar_avaliacao
 from app.logger import logger
+from datetime import datetime
 
 
 
@@ -14,34 +15,39 @@ avaliacao_schema = avaliacao_schema.AvaliacaoSchema()
 @avaliacoes_bp.route("/comportamental", methods=["GET"])
 def listar_comportamentais():
     matricula = request.args.get("matricula")
+    data_inicio = request.args.get("data_inicio")
+    data_fim = request.args.get("data_fim")
+
     if not matricula:
-      
-        logger.error("Matrícula não fornecida na requisição para listar avaliações comportamentais.")
         return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
-      
-    try:
-      
-        logger.info(f"Obtendo ID do colaborador para a matrícula {matricula}...")
-        colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
-        logger.info(f"ID encontrado. Listando avaliações comportamentais para a matrícula {matricula}...")
-        itens = avaliacao_comportamental_item_repository.listar_por_colaborador(colaborador_id)
-        return jsonify(itens), 200
-      
-    except ValueError as err:
-        logger.error(f"Erro ao listar avaliações comportamentais: {err}")
-        return jsonify({"error": str(err)}), 404
-      
+
+    colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
+
+    itens = avaliacao_comportamental_item_repository.listar_por_colaborador(
+        colaborador_id,
+        data_inicio=data_inicio,
+        data_fim=data_fim
+    )
+    return jsonify(itens), 200
+
+
 @avaliacoes_bp.route("/desafio", methods=["GET"])
 def listar_desafios():
     matricula = request.args.get("matricula")
+    data_inicio = request.args.get("data_inicio")
+    data_fim = request.args.get("data_fim")
+
     if not matricula:
         return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
-    try:
-        colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
-        itens = avaliacao_desafio_item_repository.listar_por_colaborador(colaborador_id)
-        return jsonify(itens), 200
-    except ValueError as err:
-        return jsonify({"error": str(err)}), 404
+
+    colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
+
+    itens = avaliacao_desafio_item_repository.listar_por_colaborador(
+        colaborador_id,
+        data_inicio=data_inicio,
+        data_fim=data_fim
+    )
+    return jsonify(itens), 200
 
 
 @avaliacoes_bp.route("", methods=["POST"])

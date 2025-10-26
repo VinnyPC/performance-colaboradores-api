@@ -1,30 +1,21 @@
 from app.models.avaliacao_desafio import AvaliacaoDesafio
 from app.models.avaliacao_desafio_item import AvaliacaoDesafioItem
 from app.extensions import db
+from app.schemas.avaliacao_schema import AvaliacaoDesafioItemOutputSchema
 
 
-def listar_por_colaborador(colaborador_id):
-    """
-    Retorna todas as avaliações de desafios de um colaborador específico
-    """
-    resultados = (
-        AvaliacaoDesafioItem.query
-        .join(AvaliacaoDesafio)
+def listar_por_colaborador(colaborador_id, data_inicio=None, data_fim=None):
+    query = AvaliacaoDesafioItem.query.join(AvaliacaoDesafio)\
         .filter(AvaliacaoDesafio.colaborador_id == colaborador_id)
-        .order_by(AvaliacaoDesafio.data_avaliacao.desc(), AvaliacaoDesafioItem.numero_desafio)
-        .all()
-    )
-    output = []
-    for item in resultados:
-        output.append({
-            "id": item.id,
-            "avaliacao_id": item.avaliacao_desafio_id,
-            "numero_desafio": item.numero_desafio,
-            "descricao": item.descricao,
-            "nota": item.nota,
-            "data_avaliacao": item.avaliacao.data_avaliacao.isoformat()
-        })
-    return output
+
+    if data_inicio:
+        query = query.filter(AvaliacaoDesafio.data_avaliacao >= data_inicio)
+    if data_fim:
+        query = query.filter(AvaliacaoDesafio.data_avaliacao <= data_fim)
+
+    itens = query.all()
+    schema = AvaliacaoDesafioItemOutputSchema(many=True)
+    return schema.dump(itens)
 
 
 def get_por_id(avaliacao_id: int):

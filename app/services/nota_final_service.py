@@ -24,7 +24,7 @@ def listar_notas_por_matricula(matricula: str):
     """
     Busca todas as notas finais de um colaborador a partir da matrícula.
     """
-    # Converte matrícula para ID
+    
     colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
 
     notas = nota_final_repository.listar_por_colaborador(colaborador_id)

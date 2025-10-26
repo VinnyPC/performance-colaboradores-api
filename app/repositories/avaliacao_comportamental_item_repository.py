@@ -1,27 +1,21 @@
 from app.models.avaliacao_comportamental import AvaliacaoComportamental
 from app.models.avaliacao_comportamental_item import AvaliacaoComportamentalItem
 from app.extensions import db
+from app.schemas.avaliacao_schema import AvaliacaoComportamentalItemOutputSchema
 
 
-def listar_por_colaborador(colaborador_id):
-    resultados = (
-        AvaliacaoComportamentalItem.query
-        .join(AvaliacaoComportamental)
+def listar_por_colaborador(colaborador_id, data_inicio=None, data_fim=None):
+    query = AvaliacaoComportamentalItem.query.join(AvaliacaoComportamental)\
         .filter(AvaliacaoComportamental.colaborador_id == colaborador_id)
-        .order_by(AvaliacaoComportamental.data_avaliacao.desc(), AvaliacaoComportamentalItem.numero_questao)
-        .all()
-    )
-    output = []
-    for item in resultados:
-        output.append({
-            "id": item.id,
-            "avaliacao_id": item.avaliacao_comportamental_id,
-            "numero_questao": item.numero_questao,
-            "descricao": item.descricao,
-            "nota": item.nota,
-            "data_avaliacao": item.avaliacao.data_avaliacao.isoformat()
-        })
-    return output
+
+    if data_inicio:
+        query = query.filter(AvaliacaoComportamental.data_avaliacao >= data_inicio)
+    if data_fim:
+        query = query.filter(AvaliacaoComportamental.data_avaliacao <= data_fim)
+
+    itens = query.all()
+    schema = AvaliacaoComportamentalItemOutputSchema(many=True)
+    return schema.dump(itens)
 
 def get_por_id(avaliacao_id: int):
     """
