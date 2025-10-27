@@ -57,4 +57,18 @@ POST /avaliacoes
 
 ```
 
+## Minha trajetória no projeto
+
+Este projeto foi desenvolvido como parte do meu aprendizado em desenvolvimento backend com **Flask** e **bancos relacionais (MySQL)**.  
+Comecei estruturando a base da API, evoluindo para uma arquitetura em camadas com **repositories**, **services** e **routes**.
+
+Durante o processo, aprendi sobre:
+- Boas práticas de **persistência de dados com SQLAlchemy**;
+- Implementação de **testes automatizados com Pytest** e uso de **fixtures reutilizáveis**;
+- Criação de **documentação viva com Swagger** e **Docusaurus**;
+- Estruturação de **projetos escaláveis e testáveis em Flask**.
+
+Meu objetivo com este projeto é demonstrar minha evolução como desenvolvedor e consolidar o conhecimento em **arquitetura limpa, APIs RESTful e testes automatizados**.
+
+
 
