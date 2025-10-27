@@ -7,17 +7,20 @@ import datetime
 
 @pytest.fixture(scope="module")
 def app():
+    from app import create_app
+    from app.extensions import db
+
     app = create_app()
-    app.config.update({
-        "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",  
-        "SQLALCHEMY_TRACK_MODIFICATIONS": False
-    })
+
+    # 🔧 Força o banco de teste local, ignorando config de produção
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     with app.app_context():
-        _db.create_all()
+        db.create_all()
         yield app
-        _db.drop_all()
+        db.drop_all()
 
 @pytest.fixture
 def client(app):
