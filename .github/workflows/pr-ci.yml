@@ -1,30 +1,22 @@
-name: PR CI
+name: Build, Test and Auto PR
 
 on:
-  pull_request:
-    branches: [ "main" ]
+  push:
+    branches: [ "develop" ]  # dispara quando há push na develop
 
 jobs:
-  test:
-    name: Install & Test (Python)
+  build-test:
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
@@ -35,14 +27,29 @@ jobs:
         run: |
           pytest --maxfail=1 --disable-warnings -q
 
-      # Opcional: gerar e enviar cobertura como artefato
-      # - name: Run tests with coverage
-      #   run: |
-      #     pip install pytest-cov
-      #     pytest --cov=. --cov-report=xml
-      #
-      # - name: Upload coverage artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-xml
-      #     path: coverage.xml
+  create-pr:
+    name: Create Pull Request to Main
+    needs: build-test   # só executa se os testes passarem
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Automated PR: Merge tested code from develop → main"
+          branch: develop
+          base: main
+          title: "🚀 Atualização automatizada da develop para main"
+          body: |
+            Este PR foi criado automaticamente após o build e os testes passarem com sucesso.
+            **Aprovação manual é necessária antes do merge.**
+          labels: |
+            auto-pr
+            ready-for-review
