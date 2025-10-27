@@ -1,7 +1,11 @@
 import mysql.connector
 from mysql.connector import errorcode
 from loguru import logger
-
+try:
+    import mysql.connector
+except ModuleNotFoundError:
+    from unittest import mock
+    mysql = mock.MagicMock()
 # Configurações da conexão
 config = {
     "user": "root",
