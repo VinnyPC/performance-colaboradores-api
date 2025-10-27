@@ -1,3 +1,4 @@
+from os import getenv
 import mysql.connector
 from datetime import date
 from decimal import Decimal
@@ -5,11 +6,10 @@ from loguru import logger
 
 # Configurações da conexão (ajuste conforme seu ambiente)
 config = {
-    "user": "root",
-    "password": "root",
-    "host": "localhost",
-    "port": 3306,
-    "database": "db_performance_colaboradores"
+    "user": getenv("DB_USER"),
+    "password": getenv("DB_PASSWORD"),
+    "host": getenv("DB_HOST"),
+    "port": int(getenv("DB_PORT", 3306)),
 }
 
 def populate_database():

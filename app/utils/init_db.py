@@ -6,12 +6,20 @@ try:
 except ModuleNotFoundError:
     from unittest import mock
     mysql = mock.MagicMock()
+
+from os import getenv
 # Configurações da conexão
+# config = {
+#     "user": "root",
+#     "password": "root",
+#     "host": "localhost",
+#     "port": 3306,
+# }
 config = {
-    "user": "root",
-    "password": "root",
-    "host": "localhost",
-    "port": 3306,
+    "user": getenv("DB_USER"),
+    "password": getenv("DB_PASSWORD"),
+    "host": getenv("DB_HOST"),
+    "port": int(getenv("DB_PORT", 3306)),
 }
 
 # Nome do banco de dados
