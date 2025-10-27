@@ -1,0 +1,56 @@
+openapi: 3.0.3
+info:
+  title: Endpoints de Notas Finais
+  version: "1.0"
+  description: |
+    Endpoints responsáveis por retornar as médias finais de desempenho de cada colaborador.
+
+tags:
+  - name: Notas Finais
+    description: Consultas relacionadas às notas finais calculadas.
+
+paths:
+  /notas_finais:
+    get:
+      tags: [Notas Finais]
+      summary: Listar todas as notas finais
+      description: Retorna todas as notas finais registradas na base de dados.
+      responses:
+        "200":
+          description: Lista de notas finais retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: integer, example: 1 }
+                    colaborador_id: { type: integer, example: 5 }
+                    avaliacao_comportamental_id: { type: integer, example: 10 }
+                    avaliacao_desafio_id: { type: integer, example: 11 }
+                    media_comportamental: { type: number, example: 4.5 }
+                    media_desafio: { type: number, example: 3.5 }
+                    nota_final: { type: number, example: 4.0 }
+                    data_calculo: { type: string, format: date, example: "2025-10-30" }
+
+  /notas_finais/colaborador:
+    get:
+      tags: [Notas Finais]
+      summary: Listar notas finais de um colaborador por matrícula
+      description: |
+        Retorna as notas finais associadas a uma matrícula específica de colaborador.
+      parameters:
+        - in: query
+          name: matricula
+          schema:
+            type: string
+          required: true
+          description: Matrícula do colaborador.
+      responses:
+        "200":
+          description: Notas finais retornadas com sucesso.
+        "400":
+          description: Parâmetro de matrícula ausente.
+        "404":
+          description: Nenhuma nota encontrada para o colaborador informado.

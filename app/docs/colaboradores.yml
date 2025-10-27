@@ -1,0 +1,45 @@
+openapi: 3.0.3
+info:
+  title: Endpoints de Colaboradores
+  version: "1.0"
+  description: |
+    Endpoints responsáveis por retornar dados dos colaboradores cadastrados na aplicação.
+
+tags:
+  - name: Colaboradores
+    description: Gerenciamento e listagem de colaboradores.
+
+paths:
+  /colaboradores:
+    get:
+      tags: [Colaboradores]
+      summary: Listar todos os colaboradores
+      description: Retorna a lista de todos os colaboradores cadastrados.
+      responses:
+        "200":
+          description: Lista de colaboradores retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    nome:
+                      type: string
+                      example: "Ana Souza"
+                    matricula:
+                      type: string
+                      example: "12345"
+                    cargo:
+                      type: string
+                      example: "Desenvolvedora Backend"
+                    data_admissao:
+                      type: string
+                      format: date
+                      example: "2022-05-10"
+        "500":
+          description: Erro interno do servidor.
