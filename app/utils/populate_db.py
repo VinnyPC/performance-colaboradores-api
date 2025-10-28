@@ -10,6 +10,7 @@ config = {
     "password": getenv("DB_PASSWORD"),
     "host": getenv("DB_HOST"),
     "port": int(getenv("DB_PORT", 3306)),
+    "database": getenv("DB_NAME"),
 }
 
 def populate_database():
