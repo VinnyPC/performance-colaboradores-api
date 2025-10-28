@@ -9,8 +9,12 @@ def listar_notas():
     """
     Retorna todas as notas finais.
     """
-    resultado = nota_final_service.listar_notas_finais()
-    return jsonify(resultado), 200
+    try:
+        resultado = nota_final_service.listar_notas_finais()
+        return jsonify(resultado), 200
+    except Exception as e:
+        logger.exception("Erro ao listar notas finais")
+        return jsonify({"error": f"Erro interno do servidor {e}"}), 500
 
 @nota_final_bp.route("/colaborador", methods=["GET"])
 def listar_notas_colaborador():

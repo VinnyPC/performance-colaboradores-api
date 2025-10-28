@@ -23,46 +23,59 @@ media_desafio_schema_many = AvaliacaoDesafioSchema(many=True)
 
 @avaliacoes_bp.route("/comportamental", methods=["GET"])
 def listar_comportamentais():
-    matricula = request.args.get("matricula")
-    data_inicio = request.args.get("data_inicio")
-    data_fim = request.args.get("data_fim")
+    try:
+        matricula = request.args.get("matricula")
+        data_inicio = request.args.get("data_inicio")
+        data_fim = request.args.get("data_fim")
 
-    if not matricula:
-        return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
+        if not matricula:
+            return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
 
-    colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
+        colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
 
-    itens = avaliacao_comportamental_item_repository.listar_por_colaborador(
-        colaborador_id,
-        data_inicio=data_inicio,
-        data_fim=data_fim
-    )
-    return jsonify(itens), 200
+        itens = avaliacao_comportamental_item_repository.listar_por_colaborador(
+            colaborador_id,
+            data_inicio=data_inicio,
+            data_fim=data_fim
+        )
+        return jsonify(itens), 200
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 404
+    except Exception as e:
+        logger.exception("Erro ao listar avaliações comportamentais")
+        return jsonify({"error": f"Erro interno do servidor {e}"}), 500
 
 
 @avaliacoes_bp.route("/desafio", methods=["GET"])
 def listar_desafios():
-    matricula = request.args.get("matricula")
-    data_inicio = request.args.get("data_inicio")
-    data_fim = request.args.get("data_fim")
+    try:
+        matricula = request.args.get("matricula")
+        data_inicio = request.args.get("data_inicio")
+        data_fim = request.args.get("data_fim")
 
-    if not matricula:
-        return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
+        if not matricula:
+            return jsonify({"error": "O parâmetro 'matricula' é obrigatório"}), 400
 
-    colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
+        colaborador_id = colaborador_repository.get_id_por_matricula(matricula)
 
-    itens = avaliacao_desafio_item_repository.listar_por_colaborador(
-        colaborador_id,
-        data_inicio=data_inicio,
-        data_fim=data_fim
-    )
-    return jsonify(itens), 200
+        itens = avaliacao_desafio_item_repository.listar_por_colaborador(
+            colaborador_id,
+            data_inicio=data_inicio,
+            data_fim=data_fim
+        )
+        return jsonify(itens), 200
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 404
+    except Exception as e:
+        logger.exception("Erro ao listar avaliações de desafios")
+        return jsonify({"error": f"Erro interno do servidor {e}"}), 500
   
 @avaliacoes_bp.route("/mediaFinalComportamental", methods=["GET"])
 def listar_media_final_comportamental_por_matricula():
     """
     Retorna as médias finais comportamentais de um colaborador filtrando pela matrícula e período.
     """
+    
     matricula = request.args.get("matricula")
     data_inicio = request.args.get("data_inicio")
     data_fim = request.args.get("data_fim")
@@ -85,10 +98,14 @@ def get_media_final_comportamental_por_id(avaliacao_id):
     """
     Retorna a média final comportamental de uma avaliação pelo ID.
     """
-    avaliacao = avaliacao_comportamental_repository.get_por_id(avaliacao_id)
-    if not avaliacao:
-        return jsonify({"error": "Avaliação comportamental não encontrada"}), 404
-    return jsonify(media_comportamental_schema.dump(avaliacao)), 200
+    try:
+        avaliacao = avaliacao_comportamental_repository.get_por_id(avaliacao_id)
+        if not avaliacao:
+            return jsonify({"error": "Avaliação comportamental não encontrada"}), 404
+        return jsonify(media_comportamental_schema.dump(avaliacao)), 200
+    except Exception as e:
+        logger.exception("Erro ao obter avaliação comportamental por ID")
+        return jsonify({"error": f"Erro interno do servidor {e}"}), 500
 
 
 @avaliacoes_bp.route("/mediaFinalDesafio", methods=["GET"])
@@ -115,11 +132,15 @@ def listar_media_final_desafio_por_matricula():
 
 @avaliacoes_bp.route("/mediaFinalDesafio/<int:avaliacao_id>", methods=["GET"])
 def get_media_final_desafio_por_id(avaliacao_id):
-    avaliacao = avaliacao_desafio_repository.get_por_id(avaliacao_id)
-    if not avaliacao:
-        return jsonify({"error": "Avaliação de desafio não encontrada"}), 404
-    return jsonify(media_desafio_schema.dump(avaliacao)), 200
-
+    try:
+        
+        avaliacao = avaliacao_desafio_repository.get_por_id(avaliacao_id)
+        if not avaliacao:
+            return jsonify({"error": "Avaliação de desafio não encontrada"}), 404
+        return jsonify(media_desafio_schema.dump(avaliacao)), 200
+    except Exception as e:
+        logger.exception("Erro ao obter avaliação de desafio por ID")
+        return jsonify({"error": f"Erro interno do servidor {e}"}), 500
 
 
 @avaliacoes_bp.route("", methods=["POST"])
