@@ -1,6 +1,7 @@
 from app.models import Colaborador
 from app.extensions import db
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 
 
 def get_id_por_matricula(matricula: str) -> int:
@@ -8,6 +9,7 @@ def get_id_por_matricula(matricula: str) -> int:
     if not colaborador:
         raise ValueError(f"Colaborador com matrícula {matricula} não encontrado.")
     return colaborador.id
+
 
 def listar_todos():
     colaboradores = Colaborador.query.all()
@@ -17,20 +19,31 @@ def listar_todos():
             "nome": c.nome,
             "matricula": c.matricula,
             "cargo": c.cargo,
-            "cargo": c.cargo
+            "data_admissao": c.data_admissao.strftime("%Y-%m-%d"),
         }
         for c in colaboradores
     ]
-    
+
+
 def criar(dados):
+    existente = Colaborador.query.filter_by(matricula=dados.get("matricula")).first()
+    if existente:
+        raise ValueError(f"Já existe um colaborador com matrícula {dados.get('matricula')}.")
+
     novo = Colaborador(
         matricula=dados.get("matricula"),
         nome=dados.get("nome"),
         data_admissao=datetime.strptime(dados.get("data_admissao"), "%Y-%m-%d").date(),
         cargo=dados.get("cargo")
     )
-    db.session.add(novo)
-    db.session.commit()
+
+    try:
+        db.session.add(novo)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        raise ValueError("Erro de integridade ao criar colaborador.")
+
     return {
         "id": novo.id,
         "matricula": novo.matricula,
@@ -38,7 +51,8 @@ def criar(dados):
         "cargo": novo.cargo,
         "data_admissao": novo.data_admissao.strftime("%Y-%m-%d"),
     }
-    
+
+
 def atualizar(colaborador_id, dados):
     colaborador = Colaborador.query.get(colaborador_id)
     if not colaborador:
@@ -47,7 +61,6 @@ def atualizar(colaborador_id, dados):
     colaborador.nome = dados.get("nome", colaborador.nome)
     colaborador.cargo = dados.get("cargo", colaborador.cargo)
     if "data_admissao" in dados:
-        from datetime import datetime
         colaborador.data_admissao = datetime.strptime(dados["data_admissao"], "%Y-%m-%d").date()
 
     db.session.commit()
@@ -60,6 +73,7 @@ def atualizar(colaborador_id, dados):
         "data_admissao": colaborador.data_admissao.strftime("%Y-%m-%d"),
     }
 
+
 def deletar(colaborador_id):
     colaborador = Colaborador.query.get(colaborador_id)
     if not colaborador:
@@ -67,4 +81,3 @@ def deletar(colaborador_id):
 
     db.session.delete(colaborador)
     db.session.commit()
-
