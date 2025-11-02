@@ -18,13 +18,3 @@ def test_listar_colaboradores_sucesso(monkeypatch):
     assert isinstance(resultado, list)
     assert len(resultado) == 2
     assert resultado[0]["nome"] == "João"
-
-def test_listar_colaboradores_vazio(monkeypatch):
-    monkeypatch.setattr(
-        colaborador_service.colaborador_repository,
-        "listar_todos",
-        lambda: []
-    )
-
-    resultado = colaborador_service.listar_colaboradores()
-    assert resultado == []

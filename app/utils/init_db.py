@@ -9,18 +9,18 @@ except ModuleNotFoundError:
 
 from os import getenv
 # Configurações da conexão
-# config = {
-#     "user": "root",
-#     "password": "root",
-#     "host": "localhost",
-#     "port": 3306,
-# }
 config = {
-    "user": getenv("DB_USER"),
-    "password": getenv("DB_PASSWORD"),
-    "host": getenv("DB_HOST"),
-    "port": int(getenv("DB_PORT", 3306)),
+    "user": "root",
+    "password": "root",
+    "host": "localhost",
+    "port": 3306,
 }
+# config = {
+#     "user": getenv("DB_USER"),
+#     "password": getenv("DB_PASSWORD"),
+#     "host": getenv("DB_HOST"),
+#     "port": int(getenv("DB_PORT", 3306)),
+# }
 
 # Nome do banco de dados
 DB_NAME = "db_performance_colaboradores"

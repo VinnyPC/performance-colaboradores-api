@@ -153,22 +153,6 @@ def criar_avaliacao():
         return jsonify(err.messages), 400
     except ValueError as err:
         return jsonify({"error": str(err)}), 400
-
-@avaliacoes_bp.route("/<int:avaliacao_id>", methods=["PUT"])
-def atualizar_avaliacao(avaliacao_id):
-    try:
-        data = avaliacao_schema.load(request.json, partial=True)  
-        resultado = avaliacao_service.atualizar_avaliacao(avaliacao_id, data)
-        return jsonify(resultado), 200
-
-    except ValidationError as err:
-        return jsonify(err.messages), 400
-
-    except ValueError as err:
-        return jsonify({"error": str(err)}), 404
-
-    except Exception as e:
-        return jsonify({"error": f"Erro interno do servidor {e}"}), 500
       
 @avaliacoes_bp.route("/nota_final/<int:nota_final_id>", methods=["DELETE"])
 def deletar_por_nota_final(nota_final_id):

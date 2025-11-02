@@ -83,55 +83,6 @@ def salvar_avaliacao(data: dict):
         logger.exception(f"Erro de integridade ao salvar avaliação para a matrícula {matricula}: {str(e.orig)}")
         raise ValueError(f"Erro ao salvar avaliação: {str(e.orig)}")
       
-def atualizar_avaliacao(avaliacao_id, data):
-    """
-    Atualiza uma avaliação comportamental e seus itens, bem como a avaliação de desafios e seus itens.
-    Recalcula as médias e atualiza a nota final associada.
-    """
-    logger.info(f"Iniciando atualização da avaliação ID {avaliacao_id} com dados: {data}")
-
-    avaliacao = avaliacao_comportamental_repository.get_por_id(avaliacao_id)
-    if not avaliacao:
-        logger.error(f"Avaliação comportamental com ID {avaliacao_id} não encontrada.")
-        raise ValueError("Avaliação comportamental não encontrada")
-
-    if "comportamental" in data:
-        logger.info("Atualizando itens comportamentais...")
-        avaliacao_comportamental_item_repository.atualizar_itens(avaliacao, data["comportamental"])
-
-    avaliacao_desafio = avaliacao_desafio_repository.get_por_colaborador_e_data(
-        colaborador_id=avaliacao.colaborador_id,
-        data_avaliacao=data.get("data_avaliacao")
-    )
-
-    if "desafios" in data:
-        if not avaliacao_desafio:
-            logger.error("Avaliação de desafios não encontrada.")
-            raise ValueError("Avaliação de desafios não encontrada")
-
-        logger.info("Atualizando itens de desafios...")
-        avaliacao_desafio_item_repository.atualizar_itens(avaliacao_desafio, data["desafios"])
-
-    media_comportamental = calcular_media([item.nota for item in avaliacao.itens]) if "comportamental" in data else avaliacao.media_comportamental
-    media_desafio = calcular_media([item.nota for item in avaliacao_desafio.itens]) if "desafios" in data else avaliacao_desafio.media_desafio
-
-    avaliacao.media_comportamental = media_comportamental
-    avaliacao_desafio.media_desafio = media_desafio
-
-    logger.info(f"Atualizando nota final: comportamento={media_comportamental}, desafios={media_desafio}")
-    nota_final_repository.atualizar_nota_final(
-        colaborador_id=avaliacao.colaborador_id,
-        media_comportamental=media_comportamental,
-        media_desafio=media_desafio
-    )
-
-    db.session.commit()
-    logger.success(f"Avaliação ID {avaliacao_id} atualizada com sucesso.")
-
-    return {
-        "media_comportamental": media_comportamental,
-        "media_desafio": media_desafio
-    }     
 def deletar_avaliacao_por_nota_final(nota_final_id):
     """
     Deleta a avaliação comportamental e de desafios associadas a uma nota final.

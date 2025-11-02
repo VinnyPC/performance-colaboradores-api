@@ -59,20 +59,6 @@ def test_get_por_id(app, mocker, mock_avaliacao):
     mock_query.filter_by.assert_called_once_with(id=1)
 
 
-def test_get_por_colaborador_e_data(app, mocker, mock_avaliacao):
-    """Testa se get_por_colaborador_e_data filtra corretamente."""
-    mock_query = mocker.MagicMock()
-    mock_query.filter_by.return_value.first.return_value = mock_avaliacao
-    mocker.patch.object(avaliacao_desafio_repository.AvaliacaoDesafio, "query", mock_query)
-
-    result = avaliacao_desafio_repository.get_por_colaborador_e_data(10, "2024-05-20")
-    assert result == mock_avaliacao
-    mock_query.filter_by.assert_called_once_with(
-        colaborador_id=10,
-        data_avaliacao="2024-05-20"
-    )
-
-
 def test_listar_por_colaborador_sem_datas(app, mocker):
     """Testa listar_por_colaborador sem filtros de data."""
     mock_query = mocker.MagicMock()

@@ -30,28 +30,6 @@ def test_salvar_avaliacao_sem_matricula():
     with pytest.raises(ValueError, match="O campo 'matricula' é obrigatório."):
         avaliacao_service.salvar_avaliacao(data)
         
-def test_atualizar_avaliacao_sucesso(monkeypatch):
-    avaliacao_mock = MagicMock()
-    avaliacao_mock.colaborador_id = 1
-    avaliacao_mock.itens = [MagicMock(nota=3) for _ in range(4)]
-    avaliacao_mock.media_comportamental = 3
-
-    desafio_mock = MagicMock()
-    desafio_mock.itens = [MagicMock(nota=4) for _ in range(2)]
-    desafio_mock.media_desafio = 4
-
-    monkeypatch.setattr(avaliacao_service.avaliacao_comportamental_repository, "get_por_id", lambda x: avaliacao_mock)
-    monkeypatch.setattr(avaliacao_service.avaliacao_desafio_repository, "get_por_colaborador_e_data", lambda **kwargs: desafio_mock)
-    monkeypatch.setattr(avaliacao_service.avaliacao_comportamental_item_repository, "atualizar_itens", lambda a, b: None)
-    monkeypatch.setattr(avaliacao_service.avaliacao_desafio_item_repository, "atualizar_itens", lambda a, b: None)
-    monkeypatch.setattr(avaliacao_service.nota_final_repository, "atualizar_nota_final", lambda **kwargs: None)
-    monkeypatch.setattr(avaliacao_service.db.session, "commit", lambda: None)
-
-    data = {"comportamental": [{"nota": 5} for _ in range(4)], "desafios": [{"nota": 4} for _ in range(2)], "data_avaliacao": "2025-10-30"}
-    resultado = avaliacao_service.atualizar_avaliacao(1, data)
-    assert "media_comportamental" in resultado
-    assert "media_desafio" in resultado
-
 def test_deletar_avaliacao_por_nota_final_sucesso(monkeypatch):
     nota_final_mock = MagicMock()
     nota_final_mock.avaliacao_comportamental_id = 1
